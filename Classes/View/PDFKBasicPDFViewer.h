@@ -85,6 +85,11 @@ typedef void (^PDFKBasicPDFViewerPageChangeBlock)(NSUInteger page);
 @property (nonatomic, assign) BOOL standalone;
 
 /**
+ If false, a done button is added to the toolbar.
+ */
+@property (nonatomic, assign) BOOL enableTopToolbar;
+
+/**
  The toolbar displaied at the top of the screen.
  */
 @property (nonatomic, retain, readonly) UIToolbar *navigationToolbar;

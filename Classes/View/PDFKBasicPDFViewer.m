@@ -96,7 +96,6 @@
     [thumbsConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[collectionView]|" options:NSLayoutFormatAlignAllLeft metrics:nil views:@{@"superview": self.view, @"collectionView": _thumbsCollectionView}]];
     [self.view addConstraints:thumbsConstraints];
     //Set the content insets, Need to account for top bar, navigation toolbar, and bottom bar.
-    _thumbsCollectionView.hidden = YES;
     _showingSinglePage = YES;
     
     //Create the single page view
@@ -123,6 +122,7 @@
     //Finish setup
     [_navigationToolbar sizeToFit];
     [self resetNavigationToolbar];
+    self.navigationToolbar.hidden = !self.enableTopToolbar;
     
     //Create the scrubber
     _pageScrubber = [[PDFKPageScrubber alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - self.bottomLayoutGuide.length, self.view.frame.size.width, 44.0) document:_document];
@@ -132,6 +132,7 @@
     _pageScrubber.translatesAutoresizingMaskIntoConstraints = NO;
     //Add to the view
     [self.view addSubview:_pageScrubber];
+    _pageScrubber.hidden = !self.enableThumbnailSlider;
     //Create the constraints
     NSMutableArray *pageScrubberConstraints = [[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[scrubber]|" options:NSLayoutFormatAlignAllBaseline metrics:nil views:@{@"superview": self.view, @"scrubber": _pageScrubber}] mutableCopy];
     [pageScrubberConstraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[scrubber(44)]-0-[bottomLayout]" options:NSLayoutFormatAlignAllLeft metrics:nil views:@{@"scrubber": _pageScrubber, @"bottomLayout": self.bottomLayoutGuide}]];
@@ -539,8 +540,8 @@
     if (_showingSinglePage ) {
         if (_navigationToolbar.hidden) {
             //Show toolbars
-            _navigationToolbar.hidden = NO;
-            _pageScrubber.hidden = NO;
+            _navigationToolbar.hidden = !self.enableTopToolbar;
+            _pageScrubber.hidden = !self.enableThumbnailSlider;
             [UIView animateWithDuration:0.3 animations:^{
                 if (_navigationToolbar.alpha == 0.0) {
                     _navigationToolbar.alpha = 1.0;
@@ -578,8 +579,7 @@
         [_thumbsCollectionView reloadData];
         
         //Hide the slider if showing, show the nav bar if not showing
-        _navigationToolbar.hidden = NO;
-        _thumbsCollectionView.hidden = NO;
+        _navigationToolbar.hidden = !self.enableTopToolbar;
         [UIView animateWithDuration:0.3 animations:^{
             if (_navigationToolbar.alpha == 0.0) {
                 _navigationToolbar.alpha = 1.0;
@@ -597,7 +597,7 @@
     } else {
         _showingSinglePage = YES;
         [self resetNavigationToolbar];
-        _pageScrubber.hidden = NO;
+        _pageScrubber.hidden = !self.enableThumbnailSlider;
         _pageCollectionView.hidden = NO;
         [UIView animateWithDuration:0.3 animations:^{
             if (_pageScrubber.alpha == 0.0) {
@@ -611,6 +611,17 @@
             _thumbsCollectionView.hidden = YES;
         }];
     }
+}
+
+//added by Prathap: Show or hide thumbnails view
+- (void)setEnableThumbnailSlider:(BOOL)enableThumbnailSlider {
+    _enableThumbnailSlider = enableThumbnailSlider;
+    _pageScrubber.hidden = !_enableThumbnailSlider;
+}
+
+- (void)setEnableTopToolbar:(BOOL)enableTopToolbar {
+    _enableTopToolbar = enableTopToolbar;
+    _navigationToolbar.hidden = !_enableTopToolbar;
 }
 
 @end
